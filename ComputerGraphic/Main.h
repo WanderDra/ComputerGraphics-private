@@ -13,6 +13,7 @@
 #include "Shader.h"
 #include "FileManager.h"
 #include "Utils.h"
+#include <direct.h>
 
 class Main
 {

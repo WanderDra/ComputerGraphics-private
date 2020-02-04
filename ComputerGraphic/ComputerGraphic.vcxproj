@@ -164,8 +164,13 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="biplane.d.txt" />
+    <Text Include="bishop.d.txt" />
     <Text Include="car.d.txt" />
+    <Text Include="cs219.d.txt" />
     <Text Include="knight.d.txt" />
+    <Text Include="ronny.d.txt" />
+    <Text Include="shuttle.d.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

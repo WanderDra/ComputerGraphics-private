@@ -14,8 +14,8 @@ float* FileManager::load(const char* path)
 	float pos_x, pos_y, pos_z;
 	infile >> text >> verNum >> triangleNum;
 	float* vertices = new float[verNum * 3];
-	int edgeNum, ver[3];
-	float* triangles = new float[triangleNum * 3 * 3];
+	int edgeNum, ver[30];
+	float* triangles = new float[triangleNum * 3 * 10];
 
 	for (int i = 0; i < verNum; i++) {
 		infile >> pos_x >> pos_y >> pos_z;
@@ -24,24 +24,31 @@ float* FileManager::load(const char* path)
 		vertices[i * 3 + 2] = pos_z;
 	}
 
+	int finalTriNum = 0;
 	for (int i = 0; i < triangleNum; i++) {
-		infile >> edgeNum >> ver[0] >> ver[1] >> ver[2];
-		for (int j = 0; j < 3; j++) {
-			triangles[i * 9 + j * 3] = vertices[(ver[j] - 1) * 3];
-			triangles[i * 9 + j * 3 + 1] = vertices[(ver[j] - 1) * 3 + 1];
-			triangles[i * 9 + j * 3 + 2] = vertices[(ver[j] - 1) * 3 + 2];
+		infile >> edgeNum;
+		for (int k = 0; k < edgeNum; k++) {
+			infile >> ver[k];
+		}
+		for (int e = 0; e < edgeNum - 2; e++) {
+			for (int j = 0; j < 3; j++) {
+				triangles[finalTriNum * 9 + j * 3] = vertices[(ver[j + e] - 1) * 3];
+				triangles[finalTriNum * 9 + j * 3 + 1] = vertices[(ver[j + e] - 1) * 3 + 1];
+				triangles[finalTriNum * 9 + j * 3 + 2] = vertices[(ver[j + e] - 1) * 3 + 2];
+			}
+			finalTriNum++;
 		}
 	}
 
 	
-	cout << text << " " << verNum << " " << triangleNum << endl;
-	//for (int i = 0; i < triangleNum; i++) {
+	//cout << text << " " << verNum << " " << finalTriNum << endl;
+	//for (int i = 0; i <= finalTriNum * 3; i++) {
 	//	cout << i << " " << triangles[i * 3] << " " << triangles[i * 3 + 1] << " " << triangles[i * 3 + 2] << endl;
 	//}
 	infile.close();
 
 
-	size = triangleNum;
+	size = finalTriNum;
 	return triangles;
 }
 

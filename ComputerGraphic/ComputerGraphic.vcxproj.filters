@@ -69,5 +69,20 @@
     <Text Include="car.d.txt">
       <Filter>资源文件</Filter>
     </Text>
+    <Text Include="bishop.d.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="biplane.d.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="shuttle.d.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="cs219.d.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="ronny.d.txt">
+      <Filter>资源文件</Filter>
+    </Text>
   </ItemGroup>
 </Project>

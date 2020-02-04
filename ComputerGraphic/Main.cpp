@@ -59,20 +59,33 @@ int main() {
     //Set window size when resize happening
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    //Get project path
+    char buffer[256];
+    _getcwd(buffer, 256);
+    string path = buffer;
+    string vspath = path + "\\Shader.vs";
+    string fspath = path + "\\Shader.fs";
+
     //Create Shaders
-    Shader ourShader("D:\\VSProject\\ComputerGraphics-Private\\ComputerGraphics\\ComputerGraphic\\Shader.vs", "D:\\VSProject\\ComputerGraphics-Private\\ComputerGraphics\\ComputerGraphic\\Shader.fs");
+    Shader ourShader(vspath.c_str(), fspath.c_str());
     
     //Load FileManager
     FileManager fm;
 
     ////Input object data
-    float *triangles = fm.load("D:\\VSProject\\ComputerGraphics-Private\\ComputerGraphics\\ComputerGraphic\\queen.d.txt");
+    //Import model (in project directory)////////////////////
+    string model = "biplane.d.txt";
+    /////////////////////////////////////////////////////////
+
+    string modelpath = path + "\\" + model;
+
+    float *triangles = fm.load(modelpath.c_str());
     float size = fm.getTriangleNum() * 3 * 3;
     float *vertices = new float[size];
     for (int i = 0; i < size; i++) {
         vertices[i] = triangles[i];
         //cout << vertices[i] << endl;
-    }
+    } 
 
     //unsigned int indices[] = {  // note that we start from 0!
     //0, 1, 3,   // first triangle
@@ -165,7 +178,7 @@ int main() {
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
         glm::mat4 projection;
-        projection = glm::perspective(glm::radians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(fov), 800.0f / 600.0f, 0.1f, 200.0f);
 
 
         //Transfer locations to shader
