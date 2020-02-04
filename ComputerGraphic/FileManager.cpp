@@ -33,12 +33,18 @@ float* FileManager::load(const char* path)
 		}
 	}
 
-
+	
 	cout << text << " " << verNum << " " << triangleNum << endl;
 	//for (int i = 0; i < triangleNum; i++) {
 	//	cout << i << " " << triangles[i * 3] << " " << triangles[i * 3 + 1] << " " << triangles[i * 3 + 2] << endl;
 	//}
 	infile.close();
 
+
+	size = triangleNum;
 	return triangles;
+}
+
+int FileManager::getTriangleNum() {
+	return size;
 }

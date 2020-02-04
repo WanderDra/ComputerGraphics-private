@@ -67,8 +67,8 @@ int main() {
 
     ////Input object data
     float *triangles = fm.load("D:\\VSProject\\ComputerGraphics-Private\\ComputerGraphics\\ComputerGraphic\\queen.d.txt");
-    float size = 2750 * 3 * 3;
-    float vertices[2750 * 3 * 3];
+    float size = fm.getTriangleNum() * 3 * 3;
+    float *vertices = new float[size];
     for (int i = 0; i < size; i++) {
         vertices[i] = triangles[i];
         //cout << vertices[i] << endl;
@@ -89,7 +89,7 @@ int main() {
     unsigned int VBO;
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), vertices, GL_STATIC_DRAW);
 
     ////Create EBO buffer
     //unsigned int EBO;
@@ -126,19 +126,22 @@ int main() {
     //Scroll callback
     glfwSetScrollCallback(window, scroll_callback);
 
+    ///////////////////////////////////////////////
     //Rendering loop
     while (!glfwWindowShouldClose(window))
     {
         //input
         processInput(window);
 
-        // rendering commands
+        //Rendering commands
+        //Clear color buffer
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //Clear Z-Buffer
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //Clear Z-Buffer before rendering
+        glClear(GL_DEPTH_BUFFER_BIT);
 
+        //Import shader
         ourShader.use();
         ourShader.setFloat("someUniform", 1.0f);
 

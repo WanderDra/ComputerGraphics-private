@@ -9,6 +9,7 @@ class FileManager
 {
 public:
 	float* load(const char* path);
+	int getTriangleNum();
 private:
 	int size;
 };
