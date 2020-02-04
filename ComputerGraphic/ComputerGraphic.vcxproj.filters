@@ -63,7 +63,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\..\..\OneDrive\GWU\CSCI6554-ComputerGraphics\hw\hw1\D files\knight.d.txt">
+    <Text Include="knight.d.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="car.d.txt">
       <Filter>资源文件</Filter>
     </Text>
   </ItemGroup>

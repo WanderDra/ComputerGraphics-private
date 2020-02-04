@@ -1,11 +1,31 @@
 #include "Main.h"
-#include "Utils.h"
+
 
 
 using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
+glm::vec3 cameraPos = glm::vec3(0.0f, 3.0f, 15.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 10.0f, 0.0f);
+
+//Speed
+float deltaTime = 0.0f;	// Time between current frame and last frame
+float lastFrame = 0.0f; // Time of last frame
+
+//Center of screen
+float lastX = 400, lastY = 300;
+float yaw = -90, pitch = 0;
+
+bool firstMouse;
+
+//Fov
+float fov = 45.0f;
+
 
 int main() {
 
@@ -40,64 +60,19 @@ int main() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     //Create Shaders
-    Shader ourShader("D:/VSProject/ComputerGraphic/ComputerGraphic/ComputerGraphic/Shader.vs", "D:/VSProject/ComputerGraphic/ComputerGraphic/ComputerGraphic/Shader.fs");
+    Shader ourShader("D:\\VSProject\\ComputerGraphics-Private\\ComputerGraphics\\ComputerGraphic\\Shader.vs", "D:\\VSProject\\ComputerGraphics-Private\\ComputerGraphics\\ComputerGraphic\\Shader.fs");
     
-
-
-
+    //Load FileManager
+    FileManager fm;
 
     ////Input object data
-    //Triangle
-    //float vertices[] = {
-    // 0.5f,  0.5f, 0.0f,  // top right
-    // 0.5f, -0.5f, 0.0f,  // bottom right
-    //-0.5f, -0.5f, 0.0f,  // bottom left
-    //-0.5f,  0.5f, 0.0f   // top left 
-    //};
-
-    float vertices[] = {
-    -0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-
-    -0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,
-
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-
-    -0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f, -0.5f,
-
-    -0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f,
-    };
+    float *triangles = fm.load("D:\\VSProject\\ComputerGraphics-Private\\ComputerGraphics\\ComputerGraphic\\queen.d.txt");
+    float size = 2750 * 3 * 3;
+    float vertices[2750 * 3 * 3];
+    for (int i = 0; i < size; i++) {
+        vertices[i] = triangles[i];
+        //cout << vertices[i] << endl;
+    }
 
     //unsigned int indices[] = {  // note that we start from 0!
     //0, 1, 3,   // first triangle
@@ -126,15 +101,14 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);   //index = 0, 3 vertics, size = 3 * float
     glEnableVertexAttribArray(0);
 
-    ////
-
+    ////Display mode///////////////////////////////
     //Wireframe mode
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     //glPolygonMode(GL_FRONT, GL_LINE);
-    //glPolygonMode(GL_BACK, GL_POINT);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
     //Enable Z-Buffer
     glEnable(GL_DEPTH_TEST);
@@ -142,6 +116,15 @@ int main() {
     //Remove back face
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+
+
+    ////Callback functions/////////////////////////
+    //Input mode
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //Mouse callback
+    glfwSetCursorPosCallback(window, mouse_callback);
+    //Scroll callback
+    glfwSetScrollCallback(window, scroll_callback);
 
     //Rendering loop
     while (!glfwWindowShouldClose(window))
@@ -156,21 +139,31 @@ int main() {
         //Clear Z-Buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-
         ourShader.use();
         ourShader.setFloat("someUniform", 1.0f);
 
+        //Calculate time
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         //model, camera(view), projection locations
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-55.0f), glm::vec3(1.0f, 0.5f, 0.0f));
-        //model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        //model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-20.0f), glm::vec3(0.0f, 0.0f, 2.0f));
+        model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-        glm::mat4 view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f)); //x, y, distance
+        //glm::mat4 view = glm::mat4(1.0f);
+        //view = glm::translate(view, glm::vec3(0.0f, 0.0f, -10.0f)); //x, y, distance
+
+        const float radius = 10.0f;
+        float camX = sin(glfwGetTime()) * radius;
+        float camZ = cos(glfwGetTime()) * radius;
+        glm::mat4 view;
+        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
         glm::mat4 projection;
-        projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
+
 
         //Transfer locations to shader
         int modelLoc = glGetUniformLocation(ourShader.ID, "model");
@@ -182,13 +175,12 @@ int main() {
         int projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-
             //Draw
             //Use program object
         glUseProgram(ourShader.ID);
         glBindVertexArray(VAO);
         //glDrawElements(GL_TRIANGLES, 108, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 108);
+        glDrawArrays(GL_TRIANGLES, 0, size);
         glBindVertexArray(0);
 
         // check and call events and swap the buffers
@@ -211,4 +203,59 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    const float cameraSpeed = 0.05f; // adjust accordingly
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+    if (xoffset > 150 || yoffset > 150) {
+        xoffset = 0;
+        yoffset = 0;
+    }
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.05;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(direction);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    if (fov > 1.0f && fov < 45.0f)
+        fov -= yoffset;
+    else if (fov <= 1.0f)
+        fov = 1.0f;
+    else if (fov >= 45.0f)
+        fov = 45.0f;
 }
