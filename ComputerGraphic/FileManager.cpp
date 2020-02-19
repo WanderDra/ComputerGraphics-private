@@ -30,11 +30,15 @@ float* FileManager::load(const char* path)
 		for (int k = 0; k < edgeNum; k++) {
 			infile >> ver[k];
 		}
+
 		for (int e = 0; e < edgeNum - 2; e++) {
-			for (int j = 0; j < 3; j++) {
-				triangles[finalTriNum * 9 + j * 3] = vertices[(ver[j + e] - 1) * 3];
-				triangles[finalTriNum * 9 + j * 3 + 1] = vertices[(ver[j + e] - 1) * 3 + 1];
-				triangles[finalTriNum * 9 + j * 3 + 2] = vertices[(ver[j + e] - 1) * 3 + 2];
+			triangles[finalTriNum * 9] = vertices[(ver[0] - 1) * 3];					//x0
+			triangles[finalTriNum * 9 + 1] = vertices[(ver[0] - 1) * 3 + 1];					//y0
+			triangles[finalTriNum * 9 + 2] = vertices[(ver[0] - 1) * 3 + 2];					//z0
+			for (int j = 1; j < 3; j++) {
+				triangles[finalTriNum * 9 + j * 3] = vertices[(ver[e + j] - 1) * 3];			//x1 x2
+				triangles[finalTriNum * 9 + j * 3 + 1] = vertices[(ver[e + j] - 1) * 3 + 1];	//y1 y2
+				triangles[finalTriNum * 9 + j * 3 + 2] = vertices[(ver[e + j] - 1) * 3 + 2];	//z1 z2
 			}
 			finalTriNum++;
 		}

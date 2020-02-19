@@ -80,12 +80,51 @@ int main() {
     string modelpath = path + "\\" + model;
 
     float *triangles = fm.load(modelpath.c_str());
-    float size = fm.getTriangleNum() * 3 * 3;
+    float size = fm.getTriangleNum() * 6 * 3;
     float *vertices = new float[size];
+    int flag = 0;
+    int tri_count = 0;
     for (int i = 0; i < size; i++) {
-        vertices[i] = triangles[i];
-        //cout << vertices[i] << endl;
+        if (flag == 6) {
+            flag = 0;
+        }
+        if (flag < 3) {
+            vertices[i] = triangles[tri_count];
+            triangles++;
+            //cout << vertices[i] << endl;
+        }
+        else {
+            vertices[i] = 0.0f;
+        }
+        flag++;
     } 
+
+
+
+    srand((unsigned)time(NULL));
+    //add random color
+    for (int i = 0; i < size; i += 18) {
+        float r = rand() / double(RAND_MAX);
+        float g = rand() / double(RAND_MAX);
+        float b = rand() / double(RAND_MAX);
+        for (int j = i; j < i + 18; j += 6) {
+            vertices[j + 3] = r;
+            vertices[j + 4] = g;
+            vertices[j + 5] = b;
+        }
+    }
+
+    //for (int i = 0; i < size; i += 6) {
+    //    for (int j = i; j < i + 6; j++) {
+    //        cout << vertices[j] << " ";
+    //    }
+    //    cout << endl;
+
+    //}
+
+
+    
+    
 
     //unsigned int indices[] = {  // note that we start from 0!
     //0, 1, 3,   // first triangle
@@ -110,15 +149,20 @@ int main() {
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+    ////Pointer to attr in GLSL////////////////////
+    // x, y, z, r, g, b
     //Vertex data interpretor
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);   //index = 0, 3 vertics, size = 3 * float
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);   //index = 0, 3 vertics, size = 3 * float
     glEnableVertexAttribArray(0);
+    //Color data interpretor
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     ////Display mode///////////////////////////////
     //Wireframe mode
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     //glPolygonMode(GL_FRONT, GL_LINE);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
@@ -140,6 +184,7 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
 
     ///////////////////////////////////////////////
+
     //Rendering loop
     while (!glfwWindowShouldClose(window))
     {
