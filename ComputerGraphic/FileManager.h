@@ -8,7 +8,7 @@ using namespace std;
 class FileManager
 {
 public:
-	float* load(const char* path);
+	float* load(const char* path, const bool reverse);
 	int getTriangleNum();
 private:
 	int size;

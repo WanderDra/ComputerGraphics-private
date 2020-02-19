@@ -74,12 +74,12 @@ int main() {
 
     ////Input object data
     //Import model (in project directory)////////////////////
-    string model = "biplane.d.txt";
+    string model = "car.d.txt";
     /////////////////////////////////////////////////////////
 
     string modelpath = path + "\\" + model;
 
-    float *triangles = fm.load(modelpath.c_str());
+    float *triangles = fm.load(modelpath.c_str(), false);
     float size = fm.getTriangleNum() * 6 * 3;
     float *vertices = new float[size];
     int flag = 0;

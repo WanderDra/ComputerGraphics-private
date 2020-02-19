@@ -164,6 +164,7 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\..\..\..\OneDrive\GWU\CSCI6554-ComputerGraphics\hw\hw1\D files\queen.d.txt" />
     <Text Include="biplane.d.txt" />
     <Text Include="bishop.d.txt" />
     <Text Include="car.d.txt" />

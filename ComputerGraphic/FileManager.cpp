@@ -1,6 +1,6 @@
 #include "FileManager.h"
 
-float* FileManager::load(const char* path)
+float* FileManager::load(const char* path, const bool reverse)
 {
 	ifstream infile;
 	infile.open(path, ios::in);
@@ -31,16 +31,35 @@ float* FileManager::load(const char* path)
 			infile >> ver[k];
 		}
 
-		for (int e = 0; e < edgeNum - 2; e++) {
-			triangles[finalTriNum * 9] = vertices[(ver[0] - 1) * 3];					//x0
-			triangles[finalTriNum * 9 + 1] = vertices[(ver[0] - 1) * 3 + 1];					//y0
-			triangles[finalTriNum * 9 + 2] = vertices[(ver[0] - 1) * 3 + 2];					//z0
-			for (int j = 1; j < 3; j++) {
-				triangles[finalTriNum * 9 + j * 3] = vertices[(ver[e + j] - 1) * 3];			//x1 x2
-				triangles[finalTriNum * 9 + j * 3 + 1] = vertices[(ver[e + j] - 1) * 3 + 1];	//y1 y2
-				triangles[finalTriNum * 9 + j * 3 + 2] = vertices[(ver[e + j] - 1) * 3 + 2];	//z1 z2
+		if (reverse) {
+			// divide polygon to triangle
+			for (int e = 0; e < edgeNum - 2; e++) {
+				triangles[finalTriNum * 9] = vertices[(ver[0] - 1) * 3];					//x0
+				triangles[finalTriNum * 9 + 1] = vertices[(ver[0] - 1) * 3 + 1];					//y0
+				triangles[finalTriNum * 9 + 2] = vertices[(ver[0] - 1) * 3 + 2];					//z0
+				for (int j = 1; j < 3; j++) {
+					triangles[finalTriNum * 9 + j * 3] = vertices[(ver[e + j] - 1) * 3];			//x1 x2
+					triangles[finalTriNum * 9 + j * 3 + 1] = vertices[(ver[e + j] - 1) * 3 + 1];	//y1 y2
+					triangles[finalTriNum * 9 + j * 3 + 2] = vertices[(ver[e + j] - 1) * 3 + 2];	//z1 z2
+				}
+				finalTriNum++;
 			}
-			finalTriNum++;
+		}
+		else {
+			// divide polygon to triangle
+			for (int e = 0; e < edgeNum - 2; e++) {
+				triangles[finalTriNum * 9] = vertices[(ver[0] - 1) * 3];					//x0
+				triangles[finalTriNum * 9 + 1] = vertices[(ver[0] - 1) * 3 + 1];					//y0
+				triangles[finalTriNum * 9 + 2] = vertices[(ver[0] - 1) * 3 + 2];					//z0
+				int count = 2;
+				for (int j = 1; j < 3; j++) {
+					triangles[finalTriNum * 9 + j * 3] = vertices[(ver[e + count] - 1) * 3];			//x1 x2
+					triangles[finalTriNum * 9 + j * 3 + 1] = vertices[(ver[e + count] - 1) * 3 + 1];	//y1 y2
+					triangles[finalTriNum * 9 + j * 3 + 2] = vertices[(ver[e + count] - 1) * 3 + 2];	//z1 z2
+					count--;
+				}
+				finalTriNum++;
+			}
 		}
 	}
 
