@@ -152,6 +152,9 @@
     <ResourceCompile Include="ComputerGraphic.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ConstantShader.fs" />
+    <None Include="LightingShader.fs" />
+    <None Include="LightSourceShader.fs" />
     <None Include="packages.config" />
     <None Include="Shader.fs" />
     <None Include="Shader.vs" />
@@ -165,6 +168,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\..\OneDrive\GWU\CSCI6554-ComputerGraphics\hw\hw1\D files\queen.d.txt" />
+    <Text Include="ball.d.txt" />
+    <Text Include="better-ball.d.txt" />
     <Text Include="biplane.d.txt" />
     <Text Include="bishop.d.txt" />
     <Text Include="car.d.txt" />

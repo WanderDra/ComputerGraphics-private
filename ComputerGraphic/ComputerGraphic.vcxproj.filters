@@ -44,6 +44,15 @@
     <None Include="Shader.fs">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="LightingShader.fs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="LightSourceShader.fs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="ConstantShader.fs">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -85,6 +94,12 @@
       <Filter>资源文件</Filter>
     </Text>
     <Text Include="..\..\..\..\OneDrive\GWU\CSCI6554-ComputerGraphics\hw\hw1\D files\queen.d.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="ball.d.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="better-ball.d.txt">
       <Filter>资源文件</Filter>
     </Text>
   </ItemGroup>
