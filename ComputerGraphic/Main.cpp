@@ -32,7 +32,10 @@ bool firstMouse;
 float fov = 45.0f;
 
 // lighting
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos(1.2f, 3.0f, 4.0f);
+
+//Shading mode
+int shading_mode = 0;
 
 
 int main() {
@@ -77,10 +80,22 @@ int main() {
     string ls_path = path + "\\LightingShader.fs";
     string lss_path = path + "\\LightSourceShader.fs";
 
+    string gouraud_shader_vs = path + "\\GouraudShader.vs";
+    string gouraud_shader_fs = path + "\\GouraudShader.fs";
+
+    string phong_shader_vs = path + "\\PhongShader.vs";
+    string phong_shader_fs = path + "\\PhongShader.fs";
+
+    string constant_shader_vs = path + "\\ConstantShader.vs";
+    string constant_shader_fs = path + "\\ConstantShader.fs";
+
     //Create Shaders
     //Shader ourShader(vspath.c_str(), fspath.c_str());
     Shader lightingShader(vspath.c_str(), ls_path.c_str());
     Shader lightSourceShader(vspath.c_str(), lss_path.c_str());
+    Shader gouraudShader(gouraud_shader_vs.c_str(), gouraud_shader_fs.c_str());
+    Shader phongShader(phong_shader_vs.c_str(), phong_shader_fs.c_str());
+    Shader constantShader(constant_shader_vs.c_str(), constant_shader_fs.c_str());
     //Shader lightSourceShader(vspath.c_str(), lss_path.c_str());
 
     //Load FileManager
@@ -88,7 +103,7 @@ int main() {
 
     ////Input object data
     //Import model (in project directory)////////////////////
-    string model = "better-ball.d.txt";
+    string model = "cow.d.txt";
     /////////////////////////////////////////////////////////
 
     string modelpath = path + "\\" + model;
@@ -96,15 +111,71 @@ int main() {
     float* triangles = fm.load(modelpath.c_str(), false);
     float size = fm.getTriangleNum() * 9 * 3;
     float* vertices = new float[size];
+    std::list<vertex> points = fm.getPoints();
+    std::list<int> point_number_list = fm.getPointNumberList();
+    std::list<int>::iterator it_pnl = point_number_list.begin();
+    std::list<vertex>::iterator it_points;
 
+    //for (it_pnl; it_pnl != point_number_list.end(); ++it_pnl) {
+    //    cout << *it_pnl << endl;
+    //}
+    // Phong normal calculation
+    ////////////////////////////////////////////////////////////////////////////////////////
+    //it_pnl = point_number_list.begin();
+    //int tri_count = 0;
+    //int norm_count = 0;
+    //int flag = 0;
+    //int axies[3];
+    //for (int i = 0; i < size; i++) {
+    //    if (norm_count == 3) {
+    //        norm_count = 0;
+    //        ++it_pnl;
+    //    }
+    //    if (flag == LINE_LEN) {
+    //        flag = 0;
+    //    }
+    //    if (flag < 3) {
+    //        vertices[i] = triangles[tri_count];
+    //        tri_count++;
+    //        //cout << vertices[i] << endl;
+    //    }
+    //    else if (flag < 6) {
+    //        vertices[i] = 0.0f;
+    //    }
+    //    else if (flag < 9) {
+    //        if (norm_count == 0) {
+    //            for (it_points = points.begin(); it_points != points.end(); ++it_points) {
+    //                if (it_points->number == *it_pnl) {
+    //                    //cout << it_points->number << endl;
+    //                    //cout << it_points->normal.x << " " << it_points->normal.y << " " << it_points->normal.z << endl;
+    //                    break;
+    //                }
+    //            }
+    //        }
+    //        vertices[i] = it_points->normal[norm_count];
+    //        norm_count++;
+    //    }
+    //    flag++;
+
+    //}
+    //it_pnl = point_number_list.begin();
+    // Legacy normal calculation
+    /////////////////////////////////////////////////////////////////////////////////////////////////
     int flag = 0;
     int normal_flag = 0;
     int tri_count = 0;
     int group_flag = 0;
+    int norm_count = 0;
+    it_pnl = point_number_list.begin();
+    it_points = points.begin();
     glm::vec3 normal;
     for (int i = 0; i < size; i++) {
         if (normal_flag == 3 * LINE_LEN) {
             normal_flag = 0;
+        }
+        if (norm_count == 3) {
+            norm_count = 0;
+            ++it_pnl;
         }
         if (normal_flag == 0) {
             glm::vec3 vec[3];
@@ -112,6 +183,7 @@ int main() {
             vec[1] = glm::vec3(triangles[tri_count + 3], triangles[tri_count + 4], triangles[tri_count + 5]);
             vec[2] = glm::vec3(triangles[tri_count + 6], triangles[tri_count + 7], triangles[tri_count + 8]);
             normal = calTriNormal(vec[0], vec[1], vec[2]);
+            
         }
         if (flag == LINE_LEN) {
             flag = 0;
@@ -129,13 +201,49 @@ int main() {
             vertices[i] = 0.0f;
         }
         else if (flag < 9) {
-            vertices[i] = normal[group_flag];
+            //vertices[i] = normal[group_flag];
+            if (norm_count == 0) {
+                for (it_points = points.begin(); it_points != points.end(); ++it_points) {
+                    if (it_points->number == *it_pnl) {
+                        //cout << *it_pnl << endl;
+                        it_points->normal += normal;
+                        break;
+                    }
+                }
+            }
             group_flag++;
+            norm_count++;
         }
         flag++;
         normal_flag++;
     } 
-
+    norm_count = 0;
+    flag = 0;
+    it_pnl = point_number_list.begin();
+    it_points = points.begin();
+    for (int i = 0; i < size; i++) {
+        if (flag == LINE_LEN) {
+            flag = 0;
+        }
+        if (norm_count == 3) {
+            norm_count = 0;
+            ++it_pnl;
+        }
+        if (flag >= 6 && flag < 9) {
+            if (norm_count == 0) {
+                for (it_points = points.begin(); it_points != points.end(); ++it_points) {
+                    if (it_points->number == *it_pnl) {
+                        //cout << *it_pnl << endl;
+                        break;
+                    }
+                }
+            }
+            vertices[i] = it_points->normal[norm_count];
+            norm_count++;
+        }
+        flag++;
+    }
+    ////////////////////////////////////////////////////////////////////////////////
 
 
     std::srand((unsigned)time(NULL));
@@ -152,13 +260,13 @@ int main() {
     }
 
     //DEBUG///////////////////////////////////
-    for (int i = 0; i < size; i += 9) {
-        for (int j = i; j < i + 9; j++) {
-            cout << vertices[j] << " ";
-        }
-        cout << endl;
+    //for (int i = 0; i < size; i += 9) {
+    //    for (int j = i; j < i + 9; j++) {
+    //        cout << vertices[j] << " ";
+    //    }
+    //    cout << endl;
 
-    }
+    //}
     /////////////////////////////////////////
 
     float cube[] = {
@@ -271,6 +379,10 @@ int main() {
     glCullFace(GL_BACK);
 
 
+    //Shading mode
+    shading_mode = PHONG_SHADING;
+
+
     ////Callback functions/////////////////////////
     //Input mode
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -319,24 +431,76 @@ int main() {
         //Import shader ////////////////////////////////////////////////////////////////////////////////////////
         //ourShader.use();
         //ourShader.setFloat("someUniform", 1.0f);
-
-        lightingShader.use();
-        lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        lightingShader.setMat4("projection", projection);
-        lightingShader.setMat4("view", view);
-        lightingShader.setMat4("model", model);
-        lightingShader.setVec3("lightPos", lightPos);
-
-        //lightSourceShader.use();
-        //lightSourceShader.setMat4("projection", projection);
-        //lightSourceShader.setMat4("view", view);
-        //model = glm::mat4(1.0f);
-        //model = glm::translate(model, lightPos);
-        //model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-        //lightSourceShader.setMat4("model", model);
         
+        // Test Shader
+        //lightingShader.use();
+        //lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+        //lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        //lightingShader.setMat4("projection", projection);
+        //lightingShader.setMat4("view", view);
+        //lightingShader.setMat4("model", model);
+        //lightingShader.setVec3("lightPos", lightPos);
+        
+        switch (shading_mode)
+        {
+            // Constant shading
+        case CONSTANT_SHADING:
+            constantShader.use();
+            phongShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+            phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+            phongShader.setMat4("projection", projection);
+            phongShader.setMat4("view", view);
+            phongShader.setMat4("model", model);
+            phongShader.setVec3("lightPos", lightPos);
+            gouraudShader.setVec3("viewPos", cameraPos);
+            glUseProgram(constantShader.ID);
+            break;
+            // Gouraud shading
+        case GOURAND_SHADING:
+            gouraudShader.use();
+            gouraudShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+            gouraudShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+            gouraudShader.setMat4("projection", projection);
+            gouraudShader.setVec3("viewPos", cameraPos);
+            gouraudShader.setMat4("view", view);
+            gouraudShader.setMat4("model", model);
+            gouraudShader.setVec3("lightPos", lightPos);
+            glUseProgram(gouraudShader.ID);
+            break;
+            // Phong shading
+        case PHONG_SHADING:
+            phongShader.use();
+            phongShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+            phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+            phongShader.setMat4("projection", projection);
+            phongShader.setMat4("view", view);
+            phongShader.setMat4("model", model);
+            phongShader.setVec3("lightPos", lightPos);
+            glUseProgram(phongShader.ID);
+            break;
+        default:
+            break;
+        } 
 
+        //Draw
+            //Use program object
+        //glUseProgram(gouraudShader.ID);
+        //glBindVertexArray(VAO);
+        glBindVertexArray(VAO);
+        //glDrawElements(GL_TRIANGLES, 108, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, size);
+
+        lightSourceShader.use();
+        lightSourceShader.setMat4("projection", projection);
+        lightSourceShader.setMat4("view", view);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+        lightSourceShader.setMat4("model", model);
+
+        glUseProgram(lightSourceShader.ID);
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //Transfer locations to shader
         //int modelLoc = glGetUniformLocation(ourShader.ID, "model");
@@ -347,20 +511,6 @@ int main() {
 
         //int projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
         //glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-            //Draw
-            //Use program object
-        //glUseProgram(ourShader.ID);
-        glUseProgram(lightingShader.ID);
-        //glBindVertexArray(VAO);
-        glBindVertexArray(VAO);
-        //glDrawElements(GL_TRIANGLES, 108, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, size);
-
-        //glUseProgram(lightSourceShader.ID);
-        //glBindVertexArray(lightVAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
-
 
         glBindVertexArray(0);
 
@@ -463,7 +613,7 @@ glm::vec3 calTriNormal(glm::vec3 ver1, glm::vec3 ver2, glm::vec3 ver3)
     normal[1] /= length;
     normal[2] /= length;
     glm::vec3 e_normal(normal[0], normal[1], normal[2]);
-    cout << e_normal[0] << " " << e_normal[1] << " " << e_normal[2] << endl;
+    //cout << e_normal[0] << " " << e_normal[1] << " " << e_normal[2] << endl;
     return e_normal;
 }
 

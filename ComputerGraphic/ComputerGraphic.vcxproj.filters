@@ -53,6 +53,21 @@
     <None Include="ConstantShader.fs">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="GouraudShader.fs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="GouraudShader.vs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="PhongShader.fs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="PhongShader.vs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="ConstantShader.vs">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -100,6 +115,9 @@
       <Filter>资源文件</Filter>
     </Text>
     <Text Include="better-ball.d.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="cow.d.txt">
       <Filter>资源文件</Filter>
     </Text>
   </ItemGroup>

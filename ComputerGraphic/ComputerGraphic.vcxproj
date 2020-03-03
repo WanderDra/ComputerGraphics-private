@@ -153,9 +153,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ConstantShader.fs" />
+    <None Include="ConstantShader.vs" />
+    <None Include="GouraudShader.fs" />
+    <None Include="GouraudShader.vs" />
     <None Include="LightingShader.fs" />
     <None Include="LightSourceShader.fs" />
     <None Include="packages.config" />
+    <None Include="PhongShader.fs" />
+    <None Include="PhongShader.vs" />
     <None Include="Shader.fs" />
     <None Include="Shader.vs" />
   </ItemGroup>
@@ -173,6 +178,7 @@
     <Text Include="biplane.d.txt" />
     <Text Include="bishop.d.txt" />
     <Text Include="car.d.txt" />
+    <Text Include="cow.d.txt" />
     <Text Include="cs219.d.txt" />
     <Text Include="knight.d.txt" />
     <Text Include="ronny.d.txt" />
