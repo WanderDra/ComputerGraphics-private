@@ -103,7 +103,7 @@ int main() {
 
     ////Input object data
     //Import model (in project directory)////////////////////
-    string model = "cow.d.txt";
+    string model = "better-ball.d.txt";
     /////////////////////////////////////////////////////////
 
     string modelpath = path + "\\" + model;
