@@ -4,6 +4,7 @@
 #include<stdio.h>
 #include<list>
 #include<glm/glm/glm.hpp>
+#include "Model.h"
 
 using namespace std;
 
@@ -19,7 +20,7 @@ class FileManager
 public:
 	
 
-	float* load(const char* path, const bool reverse);
+	Model load(const char* path, const bool reverse);
 	int getTriangleNum();
 	std::list<vertex> getPoints();
 	std::list<int> getPointNumberList();

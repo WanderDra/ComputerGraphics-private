@@ -5,6 +5,8 @@
 #define GOURAND_SHADING 1
 #define PHONG_SHADING 2
 
+#define GET_ARRAY_LEN(array,len){len = (sizeof(array) / sizeof(array[0]));}
+
 
 using namespace std;
 
@@ -103,14 +105,14 @@ int main() {
 
     ////Input object data
     //Import model (in project directory)////////////////////
-    string model = "better-ball.d.txt";
+    string model = "cow.d.txt";
     /////////////////////////////////////////////////////////
 
     string modelpath = path + "\\" + model;
 
-    float* triangles = fm.load(modelpath.c_str(), false);
-    float size = fm.getTriangleNum() * 9 * 3;
-    float* vertices = new float[size];
+    Model model_1 = fm.load(modelpath.c_str(), true);
+    int size;
+    size = model_1.getVerticesAmount();
     std::list<vertex> points = fm.getPoints();
     std::list<int> point_number_list = fm.getPointNumberList();
     std::list<int>::iterator it_pnl = point_number_list.begin();
@@ -161,113 +163,124 @@ int main() {
     //it_pnl = point_number_list.begin();
     // Legacy normal calculation
     /////////////////////////////////////////////////////////////////////////////////////////////////
-    int flag = 0;
-    int normal_flag = 0;
-    int tri_count = 0;
-    int group_flag = 0;
-    int norm_count = 0;
-    it_pnl = point_number_list.begin();
-    it_points = points.begin();
-    glm::vec3 normal;
-    for (int i = 0; i < size; i++) {
-        if (normal_flag == 3 * LINE_LEN) {
-            normal_flag = 0;
-        }
-        if (norm_count == 3) {
-            norm_count = 0;
-            ++it_pnl;
-        }
-        if (normal_flag == 0) {
-            glm::vec3 vec[3];
-            vec[0] = glm::vec3(triangles[tri_count], triangles[tri_count + 1], triangles[tri_count + 2]);
-            vec[1] = glm::vec3(triangles[tri_count + 3], triangles[tri_count + 4], triangles[tri_count + 5]);
-            vec[2] = glm::vec3(triangles[tri_count + 6], triangles[tri_count + 7], triangles[tri_count + 8]);
-            normal = calTriNormal(vec[0], vec[1], vec[2]);
-            
-        }
-        if (flag == LINE_LEN) {
-            flag = 0;
-        }
-        if (group_flag == 3) {
-            group_flag = 0;
-        }
+    //int flag = 0;
+    //int normal_flag = 0;
+    //int tri_count = 0;
+    //int group_flag = 0;
+    //int norm_count = 0;
+    //it_pnl = point_number_list.begin();
+    //it_points = points.begin();
+    //glm::vec3 normal;
+    //for (int i = 0; i < size; i++) {
+    //    if (normal_flag == 3 * LINE_LEN) {
+    //        normal_flag = 0;
+    //    }
+    //    if (norm_count == 3) {
+    //        norm_count = 0;
+    //        ++it_pnl;
+    //    }
+    //    if (normal_flag == 0) {
+    //        glm::vec3 vec[3];
+    //        vec[0] = glm::vec3(triangles[tri_count], triangles[tri_count + 1], triangles[tri_count + 2]);
+    //        vec[1] = glm::vec3(triangles[tri_count + 3], triangles[tri_count + 4], triangles[tri_count + 5]);
+    //        vec[2] = glm::vec3(triangles[tri_count + 6], triangles[tri_count + 7], triangles[tri_count + 8]);
+    //        normal = calTriNormal(vec[0], vec[1], vec[2]);
+    //        
+    //    }
+    //    if (flag == LINE_LEN) {
+    //        flag = 0;
+    //    }
+    //    if (group_flag == 3) {
+    //        group_flag = 0;
+    //    }
 
-        if (flag < 3) {
-            vertices[i] = triangles[tri_count];
-            tri_count++;
-            //cout << vertices[i] << endl;
-        }
-        else if(flag < 6){
-            vertices[i] = 0.0f;
-        }
-        else if (flag < 9) {
-            //vertices[i] = normal[group_flag];
-            if (norm_count == 0) {
-                for (it_points = points.begin(); it_points != points.end(); ++it_points) {
-                    if (it_points->number == *it_pnl) {
-                        //cout << *it_pnl << endl;
-                        it_points->normal += normal;
-                        break;
-                    }
-                }
-            }
-            group_flag++;
-            norm_count++;
-        }
-        flag++;
-        normal_flag++;
-    } 
-    norm_count = 0;
-    flag = 0;
-    it_pnl = point_number_list.begin();
-    it_points = points.begin();
-    for (int i = 0; i < size; i++) {
-        if (flag == LINE_LEN) {
-            flag = 0;
-        }
-        if (norm_count == 3) {
-            norm_count = 0;
-            ++it_pnl;
-        }
-        if (flag >= 6 && flag < 9) {
-            if (norm_count == 0) {
-                for (it_points = points.begin(); it_points != points.end(); ++it_points) {
-                    if (it_points->number == *it_pnl) {
-                        //cout << *it_pnl << endl;
-                        break;
-                    }
-                }
-            }
-            vertices[i] = it_points->normal[norm_count];
-            norm_count++;
-        }
-        flag++;
-    }
+    //    if (flag < 3) {
+    //        vertices[i] = triangles[tri_count];
+    //        tri_count++;
+    //        //cout << vertices[i] << endl;
+    //    }
+    //    else if(flag < 6){
+    //        vertices[i] = 0.0f;
+    //    }
+    //    else if (flag < 9) {
+    //        //vertices[i] = normal[group_flag];
+    //        if (norm_count == 0) {
+    //            for (it_points = points.begin(); it_points != points.end(); ++it_points) {
+    //                if (it_points->number == *it_pnl) {
+    //                    //cout << *it_pnl << endl;
+    //                    it_points->normal += normal;
+    //                    break;
+    //                }
+    //            }
+    //        }
+    //        group_flag++;
+    //        norm_count++;
+    //    }
+    //    flag++;
+    //    normal_flag++;
+    //} 
+    //norm_count = 0;
+    //flag = 0;
+    //it_pnl = point_number_list.begin();
+    //it_points = points.begin();
+    //for (int i = 0; i < size; i++) {
+    //    if (flag == LINE_LEN) {
+    //        flag = 0;
+    //    }
+    //    if (norm_count == 3) {
+    //        norm_count = 0;
+    //        ++it_pnl;
+    //    }
+    //    if (flag >= 6 && flag < 9) {
+    //        if (norm_count == 0) {
+    //            for (it_points = points.begin(); it_points != points.end(); ++it_points) {
+    //                if (it_points->number == *it_pnl) {
+    //                    //cout << *it_pnl << endl;
+    //                    break;
+    //                }
+    //            }
+    //        }
+    //        vertices[i] = it_points->normal[norm_count];
+    //        norm_count++;
+    //    }
+    //    flag++;
+    //}
     ////////////////////////////////////////////////////////////////////////////////
 
 
+    // Set model 1 color
     std::srand((unsigned)time(NULL));
     //add random color
-    for (int i = 0; i < size; i += 27) {
-        float r = rand() / double(RAND_MAX);
-        float g = rand() / double(RAND_MAX);
-        float b = rand() / double(RAND_MAX);
-        for (int j = i; j < i + 27; j += 9) {
-            vertices[j + 3] = r;
-            vertices[j + 4] = g;
-            vertices[j + 5] = b;
-        }
+    list<glm::vec4> color_map;
+    for (int i = 0; i < model_1.getVerticesAmount(); i++) {
+        glm::vec4 color;
+        color.r = rand() / double(RAND_MAX);
+        color.g = rand() / double(RAND_MAX);
+        color.b = rand() / double(RAND_MAX);
+        color.a = 1.0f;
+        color_map.insert(color_map.end(), color);
     }
+    model_1.setColor(color_map);
+
+
+    float* vertices = model_1.getNoneEBOVertices(true);
 
     //DEBUG///////////////////////////////////
-    //for (int i = 0; i < size; i += 9) {
-    //    for (int j = i; j < i + 9; j++) {
+    //for (int i = 0; i < size; i++) {
+    //    for (int j = i * 9; j < i * 9 + 9; j++) {
     //        cout << vertices[j] << " ";
     //    }
     //    cout << endl;
 
     //}
-    /////////////////////////////////////////
+
+    //for (int i = 0; i < model_1.getPolygonsAmount(); i++) {
+    //    for (int j = i * 3; j < i * 3 + 3; j++) {
+    //        cout << indices[j] << " ";
+    //    }
+    //    cout << endl;
+    //}
+    ///////////////////////////////////////
 
     float cube[] = {
         -0.5f, -0.5f, -0.5f,
@@ -312,24 +325,21 @@ int main() {
         -0.5f,  0.5f,  0.5f,
         -0.5f,  0.5f, -0.5f,
     };
-    
-    
-
-    //unsigned int indices[] = {  // note that we start from 0!
-    //0, 1, 3,   // first triangle
-    //1, 2, 3    // second triangle
-    //};
 
     //Create VAO to save VBOs
-    unsigned int VAO;
+    unsigned int VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    //glGenBuffers(1, &EBO);
     glBindVertexArray(VAO);
 
     //Create VBO buffer
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, model_1.getSizeOfVertices() * sizeof(float), vertices, GL_STATIC_DRAW);
+    
+    //Create EBO buffer
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     ////Pointer to attr in GLSL////////////////////
     // x, y, z, r, g, b
@@ -343,25 +353,25 @@ int main() {
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    unsigned int lightVAO;
-    unsigned int lightVBO;
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glGenBuffers(1, &lightVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+    //-------------------------------------------------------------------------------------------------
 
-    //Vertex data interpretor
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);   //index = 0, 3 vertics, size = 3 * float
-    glEnableVertexAttribArray(0);
+    //unsigned int lightVAO;
+    //unsigned int lightVBO;
+    //glGenVertexArrays(1, &lightVAO);
+    //glBindVertexArray(lightVAO);
 
-    ////Create EBO buffer
-    //unsigned int EBO;
-    //glGenBuffers(1, &EBO);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    //glGenBuffers(1, &lightVBO);
+    //glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
+    ////Vertex data interpretor
+    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);   //index = 0, 3 vertics, size = 3 * float
+    //glEnableVertexAttribArray(0);
+
+
+    glBindVertexArray(0);
     ////Display mode///////////////////////////////
     //Wireframe mode
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -446,12 +456,12 @@ int main() {
             // Constant shading
         case CONSTANT_SHADING:
             constantShader.use();
-            phongShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-            phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-            phongShader.setMat4("projection", projection);
-            phongShader.setMat4("view", view);
-            phongShader.setMat4("model", model);
-            phongShader.setVec3("lightPos", lightPos);
+            constantShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+            constantShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+            constantShader.setMat4("projection", projection);
+            constantShader.setMat4("view", view);
+            constantShader.setMat4("model", model);
+            constantShader.setVec3("lightPos", lightPos);
             gouraudShader.setVec3("viewPos", cameraPos);
             glUseProgram(constantShader.ID);
             break;
@@ -485,22 +495,26 @@ int main() {
         //Draw
             //Use program object
         //glUseProgram(gouraudShader.ID);
-        //glBindVertexArray(VAO);
         glBindVertexArray(VAO);
-        //glDrawElements(GL_TRIANGLES, 108, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, size);
+        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glDrawArrays(GL_TRIANGLES, 0, model_1.getSizeOfVertices());
+        //glDrawElements(GL_TRIANGLES, model_1.getPolygonsAmount() * 3, GL_UNSIGNED_INT, 0);
 
-        lightSourceShader.use();
-        lightSourceShader.setMat4("projection", projection);
-        lightSourceShader.setMat4("view", view);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-        lightSourceShader.setMat4("model", model);
 
-        glUseProgram(lightSourceShader.ID);
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //lightSourceShader.use();
+        //lightSourceShader.setMat4("projection", projection);
+        //lightSourceShader.setMat4("view", view);
+        //model = glm::mat4(1.0f);
+        //model = glm::translate(model, lightPos);
+        //model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+        //lightSourceShader.setMat4("model", model);
+
+        //glUseProgram(lightSourceShader.ID);
+        //glBindVertexArray(lightVAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+
 
         //Transfer locations to shader
         //int modelLoc = glGetUniformLocation(ourShader.ID, "model");
@@ -512,12 +526,16 @@ int main() {
         //int projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
         //glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        glBindVertexArray(0);
+        //glBindVertexArray(0);
 
         // check and call events and swap the buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
 
     glfwTerminate();
 	return 0;
