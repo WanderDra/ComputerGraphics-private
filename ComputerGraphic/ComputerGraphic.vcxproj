@@ -142,11 +142,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
@@ -164,13 +166,17 @@
     <None Include="PhongShader.vs" />
     <None Include="Shader.fs" />
     <None Include="Shader.vs" />
+    <None Include="SkyboxShader.fs" />
+    <None Include="SkyboxShader.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\OneDrive\GWU\CSCI6554-ComputerGraphics\hw\hw1\glad\src\glad.c" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>

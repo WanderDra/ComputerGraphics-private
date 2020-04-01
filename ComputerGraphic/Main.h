@@ -15,6 +15,11 @@
 #include "FileManager.h"
 #include "Utils.h"
 #include <direct.h>
+#include "Skybox.h"
+
+#include <vector>
+#include "Camera.h"
+
 
 class Main
 {

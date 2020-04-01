@@ -33,6 +33,12 @@
     <ClInclude Include="Model.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ComputerGraphic.rc">
@@ -71,6 +77,12 @@
     <None Include="ConstantShader.vs">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="SkyboxShader.vs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="SkyboxShader.fs">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -89,6 +101,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

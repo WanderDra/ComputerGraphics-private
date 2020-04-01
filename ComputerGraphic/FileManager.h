@@ -20,7 +20,7 @@ class FileManager
 public:
 	
 
-	Model load(const char* path, const bool reverse);
+	Model load(const char* path, const bool reverse, const bool smooth);
 	int getTriangleNum();
 	std::list<vertex> getPoints();
 	std::list<int> getPointNumberList();

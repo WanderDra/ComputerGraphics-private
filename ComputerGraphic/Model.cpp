@@ -1,15 +1,20 @@
 #include "Model.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 Model::Model(const bool reverse)
 {
 	this->reverse = reverse;
 }
 
-Model::Model(const list<Point> points, const list<Polygon> polygons, const bool reverse)
+Model::Model(const list<Point> points, const list<Polygon> polygons, const bool reverse, const bool smooth)
 {
+	counter = 0;
 	loadPoints(points);
 	loadPolygons(polygons);
 	this->reverse = reverse;
+	genUV();
+	createVBO(smooth);
 }
 
 void Model::setColor(list<glm::vec4> color_map)
@@ -143,7 +148,7 @@ float* Model::getVertices(bool smooth)
 
 float* Model::getNoneEBOVertices(bool smooth)
 {
-	list<float> ver_list; //pos, color, normal
+	list<float> ver_list; //pos, color, normal, uv
 	list<float>::iterator it_vl;
 	list<Point>::iterator it_p;
 	list<int>::iterator it_point;
@@ -175,6 +180,9 @@ float* Model::getNoneEBOVertices(bool smooth)
 				ver_list.insert(ver_list.end(), it_div_pl->normal.y);
 				ver_list.insert(ver_list.end(), it_div_pl->normal.z);
 			}
+			// UV
+			ver_list.insert(ver_list.end(), it_p->uv.x);
+			ver_list.insert(ver_list.end(), it_p->uv.y);
 		}
 	}
 	it_vl = ver_list.begin();
@@ -247,6 +255,56 @@ int Model::getSizeOfVertices()
 	return vertices_size;
 }
 
+void Model::show(Shader shader)
+{
+	glUseProgram(shader.ID);
+	if (false) {
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, getSizeOfVertices(), GL_UNSIGNED_INT, 0);
+	}
+	else {
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, getSizeOfVertices());
+	}
+	//glDrawArrays(GL_TRIANGLES, 0, getSizeOfVertices());
+	//glDrawArrays(GL_TRIANGLES, 0, counter);
+	//counter++;
+}
+
+void Model::loadTexture(const int obj_no, const char* image)
+{
+	int width, height, nrChannels;
+	glGenTextures(obj_no, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load(image, &width, &height, &nrChannels, 0);
+	cout << image << endl;
+	if (data) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+
+}
+
+void Model::clear()
+{
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+}
+
 glm::vec3 Model::calTriNormal(glm::vec3 ver1, glm::vec3 ver2, glm::vec3 ver3)
 {
 	float temp1[3], temp2[3], normal[3];
@@ -286,6 +344,60 @@ void Model::addNeighbor()
 			it_point->neighbors.insert(it_point->neighbors.end(), it_p->getNo());
 		}
 	}
+}
+
+void Model::createVBO(bool smooth)
+{
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	//glGenBuffers(1, &EBO);
+	glBindVertexArray(VAO);
+
+	//Create VBO buffer
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, getSizeOfVertices() * sizeof(float), getNoneEBOVertices(smooth), GL_STATIC_DRAW);
+
+	//Create EBO buffer
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	////Pointer to attr in GLSL////////////////////
+	// x, y, z, r, g, b
+	//Vertex data interpretor
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);   //index = 0, 3 vertics, size = 3 * float
+	glEnableVertexAttribArray(0);
+	//Color data interpretor
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	//Normal data interpretor
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+	// Texture Coords
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
+	glEnableVertexAttribArray(3);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void Model::genUV()
+{
+	list<Point>::iterator it_point;
+	for (it_point = points.begin(); it_point != points.end(); ++it_point) {
+		float x = it_point->pos.x;
+		float y = it_point->pos.y;
+		float z = it_point->pos.z;
+		float phi = atan2(x, z);
+		float theta = acos(y);
+		if (phi < 0.0) {
+			phi += 2 * PI;
+		}
+		float u = phi / (PI * 2);
+		float v = 1 - theta / (PI);
+		it_point->uv = glm::vec2(u, v);
+		cout << it_point->uv.x << " " << it_point->uv.y << endl;
+	}
+	
 }
 
 Polygon::Polygon(const int no, const list<int> points, const bool reverse)
