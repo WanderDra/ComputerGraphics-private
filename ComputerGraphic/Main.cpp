@@ -1,4 +1,5 @@
 #include "Main.h"
+#include <map>
 #define LINE_LEN 9
 
 #define CONSTANT_SHADING 0
@@ -127,9 +128,14 @@ int main() {
     Skybox skybox(faces, &skyboxShader);
     skybox.loadCubemap();
 
+    // Model Manager
+    ModelManager model_manager;
+
     ////Input object data
     //Import model (in project directory)////////////////////
     string model = "better-ball.d.txt";
+    //string model = "cow.d.txt";
+
     /////////////////////////////////////////////////////////
 
     string modelpath = path + "\\" + model;
@@ -138,20 +144,25 @@ int main() {
     // Load model
     Model model_1 = fm.load(modelpath.c_str(), true, true);
     model_1.loadTexture(1, (path + "\\" + "Moon.jpg").c_str());
+    model_manager.addModel(&model_1, glm::vec3(1.0f, 1.0f, 1.0f));
+    Model model_2 = fm.load(modelpath.c_str(), true, true);
+    model_2.loadTexture(2, (path + "\\" + "timg.png").c_str());
+    model_manager.addModel(&model_2, glm::vec3(-0.3f, -0.3f, -0.3f));
 
-    // Set model 1 color
-    std::srand((unsigned)time(NULL));
-    //add random color
-    list<glm::vec4> color_map;
-    for (int i = 0; i < model_1.getVerticesAmount(); i++) {
-        glm::vec4 color;
-        color.r = rand() / double(RAND_MAX);
-        color.g = rand() / double(RAND_MAX);
-        color.b = rand() / double(RAND_MAX);
-        color.a = 1.0f;
-        color_map.insert(color_map.end(), color);
-    }
-    model_1.setColor(color_map);
+
+    //// Set model 1 color
+    //std::srand((unsigned)time(NULL));
+    ////add random color
+    //list<glm::vec4> color_map;
+    //for (int i = 0; i < model_1.getVerticesAmount(); i++) {
+    //    glm::vec4 color;
+    //    color.r = rand() / double(RAND_MAX);
+    //    color.g = rand() / double(RAND_MAX);
+    //    color.b = rand() / double(RAND_MAX);
+    //    color.a = 1.0f;
+    //    color_map.insert(color_map.end(), color);
+    //}
+    //model_1.setColor(color_map);
 
 
     //float* vertices = model_1.getNoneEBOVertices(true);
@@ -193,6 +204,10 @@ int main() {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
+    // Blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     //Shading mode
     shading_mode = PHONG_SHADING;
 
@@ -233,7 +248,7 @@ int main() {
         //Import shader ////////////////////////////////////////////////////////////////////////////////////////
         //ourShader.use();
         //ourShader.setFloat("someUniform", 1.0f);
-        
+
         // Test Shader
         //lightingShader.use();
         //lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
@@ -242,49 +257,19 @@ int main() {
         //lightingShader.setMat4("view", view);
         //lightingShader.setMat4("model", model);
         //lightingShader.setVec3("lightPos", lightPos);
-        
-        switch (shading_mode)
+
+        /* sort the transparent windows before rendering
+         ---------------------------------------------*/
+        std::map<float, ModelAttributes> sorted;
+        for (unsigned int i = 0; i < model_manager.getAmount(); i++)
         {
-            // Constant shading
-        case CONSTANT_SHADING:
-            constantShader.use();
-            constantShader.setVec3("objectColor", 0.87f, 0.87f, 0.87f);
-            constantShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-            constantShader.setMat4("projection", projection);
-            constantShader.setMat4("view", view);
-            constantShader.setMat4("model", model);
-            constantShader.setVec3("lightPos", lightPos);
-            constantShader.setVec3("viewPos", cameraPos);
-            model_1.show(constantShader);
-            break;
-            // Gouraud shading
-        case GOURAND_SHADING:
-            gouraudShader.use();
-            gouraudShader.setVec3("objectColor", 0.87f, 0.87f, 0.87f);
-            gouraudShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-            gouraudShader.setMat4("projection", projection);
-            gouraudShader.setVec3("viewPos", cameraPos);
-            gouraudShader.setMat4("view", view);
-            gouraudShader.setMat4("model", model);
-            gouraudShader.setVec3("lightPos", lightPos);
-            model_1.show(gouraudShader);
-            break;
-            // Phong shading
-        case PHONG_SHADING:
-            phongShader.use();
-            phongShader.setVec3("objectColor", 0.87f, 0.87f, 0.87f);
-            phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-            phongShader.setMat4("projection", projection);
-            phongShader.setMat4("view", view);
-            phongShader.setMat4("model", model);
-            phongShader.setVec3("lightPos", lightPos);
-            model_1.show(phongShader);
-            break;
-        default:
-            break;
-        } 
+            vector<ModelAttributes>* ma = model_manager.getModelAttributes();
+            float distance = glm::length(camera.Position - ma->at(i).location);
+            sorted[distance] = ma->at(i);
+        }
 
         // Skybox
+        glm::mat4 view_temp = view;
         view = camera.GetViewMatrix();
         skyboxShader.use();
         projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -292,13 +277,69 @@ int main() {
         skyboxShader.setMat4("view", view);
         skyboxShader.setMat4("projection", projection);
         skybox.show();
+        view = view_temp;
+
+        for (std::map<float, ModelAttributes>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+        {
+            switch (shading_mode)
+            {
+                // Constant shading
+            case CONSTANT_SHADING:
+                constantShader.use();
+                constantShader.setVec3("objectColor", 0.87f, 0.87f, 0.87f);
+                constantShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+                constantShader.setMat4("projection", projection);
+                constantShader.setMat4("view", view);
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, it->second.location);
+                constantShader.setMat4("model", model);
+                constantShader.setVec3("lightPos", lightPos);
+                constantShader.setVec3("viewPos", cameraPos);
+                it->second.model->show(constantShader);
+                break;
+                // Gouraud shading
+            case GOURAND_SHADING:
+                gouraudShader.use();
+                gouraudShader.setVec3("objectColor", 0.87f, 0.87f, 0.87f);
+                gouraudShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+                gouraudShader.setMat4("projection", projection);
+                gouraudShader.setVec3("viewPos", cameraPos);
+                gouraudShader.setMat4("view", view);
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, it->second.location);
+                gouraudShader.setMat4("model", model);
+                gouraudShader.setVec3("lightPos", lightPos);
+                it->second.model->show(gouraudShader);
+                break;
+                // Phong shading
+            case PHONG_SHADING:
+                phongShader.use();
+                phongShader.setVec3("objectColor", 0.87f, 0.87f, 0.87f);
+                phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+                phongShader.setMat4("projection", projection);
+                phongShader.setMat4("view", view);
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, it->second.location);
+                phongShader.setMat4("model", model);
+                phongShader.setVec3("lightPos", lightPos);
+                it->second.model->show(phongShader);
+                break;
+            default:
+                break;
+            }
+        }
+
+        
 
         // check and call events and swap the buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    model_1.clear();
+    vector<ModelAttributes> *ma = model_manager.getModelAttributes();
+    for (vector<ModelAttributes>::iterator it = ma->begin(); it != ma->end(); ++it){
+        it->model->clear();
+    }
     skybox.clear();
     glfwTerminate();
 	return 0;

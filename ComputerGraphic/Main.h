@@ -19,6 +19,7 @@
 
 #include <vector>
 #include "Camera.h"
+#include "ModelManager.h"
 
 
 class Main

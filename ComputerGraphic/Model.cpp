@@ -259,12 +259,13 @@ void Model::show(Shader shader)
 {
 	glUseProgram(shader.ID);
 	if (false) {
-		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindVertexArray(VAO);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		glDrawElements(GL_TRIANGLES, getSizeOfVertices(), GL_UNSIGNED_INT, 0);
 	}
 	else {
 		glBindVertexArray(VAO);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		glDrawArrays(GL_TRIANGLES, 0, getSizeOfVertices());
 	}
 	//glDrawArrays(GL_TRIANGLES, 0, getSizeOfVertices());
@@ -274,27 +275,35 @@ void Model::show(Shader shader)
 
 void Model::loadTexture(const int obj_no, const char* image)
 {
-	int width, height, nrChannels;
-	glGenTextures(obj_no, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load(image, &width, &height, &nrChannels, 0);
-	cout << image << endl;
-	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glGenTextures(1, &texture);
+	int width, height, nrComponents;
+	unsigned char* data = stbi_load(image, &width, &height, &nrComponents, 0);
+	if (data)
+	{
+		GLenum format;
+		if (nrComponents == 1)
+			format = GL_RED;
+		else if (nrComponents == 3)
+			format = GL_RGB;
+		else if (nrComponents == 4)
+			format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
 	}
 	else
 	{
-		std::cout << "Failed to load texture" << std::endl;
+		std::cout << "Texture failed to load at path: " << image << std::endl;
+		stbi_image_free(data);
 	}
-	stbi_image_free(data);
 
 }
 
@@ -395,7 +404,7 @@ void Model::genUV()
 		float u = phi / (PI * 2);
 		float v = 1 - theta / (PI);
 		it_point->uv = glm::vec2(u, v);
-		cout << it_point->uv.x << " " << it_point->uv.y << endl;
+		//cout << it_point->uv.x << " " << it_point->uv.y << endl;
 	}
 	
 }
