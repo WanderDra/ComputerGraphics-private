@@ -53,6 +53,8 @@ public:
 	int getPolygonsAmount();
 	int getSizeOfVertices();
 	void show(Shader shader);
+	void show(Shader shader, unsigned int depthMap);
+	void createShadow(Shader shadowShader, glm::vec3 pos);
 	void loadTexture(const int obj_no, const char* image);
 	void clear();
 	list<unsigned int> indices;

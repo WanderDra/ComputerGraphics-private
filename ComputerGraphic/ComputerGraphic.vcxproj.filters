@@ -86,6 +86,24 @@
     <None Include="SkyboxShader.fs">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="PhongShaderShadow.fs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="PhongShaderShadow.vs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="simpleDepthShader.fs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="simpleDepthShader.vs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="floorShaderShadow.fs">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="floorShaderShadow.vs">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -148,6 +166,12 @@
       <Filter>资源文件</Filter>
     </Text>
     <Text Include="cow.d.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="..\..\..\hw4_Huang_Caozhiyuan_Code\ComputerGraphics\ComputerGraphic\floor.d.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="..\..\..\hw4_Huang_Caozhiyuan_Code\ComputerGraphics\ComputerGraphic\floor-small.d.txt">
       <Filter>资源文件</Filter>
     </Text>
   </ItemGroup>

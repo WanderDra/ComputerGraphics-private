@@ -273,6 +273,32 @@ void Model::show(Shader shader)
 	//counter++;
 }
 
+void Model::show(Shader shader, unsigned int depthMap)
+{
+	glUseProgram(shader.ID);
+	if (false) {
+		glBindVertexArray(VAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDrawElements(GL_TRIANGLES, getSizeOfVertices(), GL_UNSIGNED_INT, 0);
+
+	}
+	else {
+		glBindVertexArray(VAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDrawArrays(GL_TRIANGLES, 0, getSizeOfVertices());
+
+	}
+	//glDrawArrays(GL_TRIANGLES, 0, getSizeOfVertices());
+	//glDrawArrays(GL_TRIANGLES, 0, counter);
+	//counter++;
+}
+
 void Model::loadTexture(const int obj_no, const char* image)
 {
 	glGenTextures(1, &texture);
@@ -388,6 +414,17 @@ void Model::createVBO(bool smooth)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
+
+void Model::createShadow(Shader shadowShader, glm::vec3 pos) {
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, pos);
+	model = glm::scale(model, glm::vec3(1.0f));
+	shadowShader.setMat4("model", model);
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_TRIANGLES, 0, getSizeOfVertices());
+	glBindVertexArray(0);
+}
+
 
 void Model::genUV()
 {

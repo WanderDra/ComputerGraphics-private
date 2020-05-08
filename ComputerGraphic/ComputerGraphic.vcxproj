@@ -158,6 +158,8 @@
   <ItemGroup>
     <None Include="ConstantShader.fs" />
     <None Include="ConstantShader.vs" />
+    <None Include="floorShaderShadow.fs" />
+    <None Include="floorShaderShadow.vs" />
     <None Include="GouraudShader.fs" />
     <None Include="GouraudShader.vs" />
     <None Include="LightingShader.fs" />
@@ -165,8 +167,12 @@
     <None Include="packages.config" />
     <None Include="PhongShader.fs" />
     <None Include="PhongShader.vs" />
+    <None Include="PhongShaderShadow.fs" />
+    <None Include="PhongShaderShadow.vs" />
     <None Include="Shader.fs" />
     <None Include="Shader.vs" />
+    <None Include="simpleDepthShader.fs" />
+    <None Include="simpleDepthShader.vs" />
     <None Include="SkyboxShader.fs" />
     <None Include="SkyboxShader.vs" />
   </ItemGroup>
@@ -183,6 +189,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\..\OneDrive\GWU\CSCI6554-ComputerGraphics\hw\hw1\D files\queen.d.txt" />
+    <Text Include="..\..\..\hw4_Huang_Caozhiyuan_Code\ComputerGraphics\ComputerGraphic\floor-small.d.txt" />
+    <Text Include="..\..\..\hw4_Huang_Caozhiyuan_Code\ComputerGraphics\ComputerGraphic\floor.d.txt" />
     <Text Include="ball.d.txt" />
     <Text Include="better-ball.d.txt" />
     <Text Include="biplane.d.txt" />

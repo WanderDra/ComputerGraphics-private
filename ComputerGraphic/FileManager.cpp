@@ -8,12 +8,14 @@ Model FileManager::load(const char* path, const bool reverse, const bool smooth)
 	if (!infile.is_open())
 	{
 		cout << "FileManager: Open file failure" << endl;
+		return 0;
 	}
 
 	string text;
 	float verNum, triangleNum;
 	float pos_x, pos_y, pos_z;
 	infile >> text >> verNum >> triangleNum;
+	cout << text << verNum << endl;
 	float* vertices = new float[verNum * 3];
 	int edgeNum, ver[30];
 	float* triangles = new float[triangleNum * 3 * 10];
